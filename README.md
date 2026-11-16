@@ -47,7 +47,7 @@ Tested on Node.js `v26.13.0` with npm `11.20.0`.
 ## Installation
 
 ```bash
-git clone <repository-url> stackscope
+git clone https://github.com/k1toune/StackScope.git stackscope
 cd stackscope
 npm test
 ```
