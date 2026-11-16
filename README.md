@@ -26,10 +26,10 @@ node index.js -host example.com
 ## How It Works
 
 1. The target is normalized and validated. A scheme is added when omitted.
-2. StackScope requests `/robots.txt` over HTTPS, falling back to HTTP only when needed.
+2. StackScope requests `/robots.txt` over HTTPS, falling back to HTTP when HTTPS is unavailable.
 3. The scan stops if `robots.txt` returns `401`, `403`, or `429`, or if the root path is disallowed.
 4. The root HTML page is fetched once. Redirects are followed only within the target host and its `www` variant.
-5. Response headers, cookies, HTML metadata, and same-origin script/style references are inspected against the technology rule set.
+5. Response headers, cookies, HTML metadata, and script/style asset references are inspected against the technology rule set.
 6. Version indicators are resolved into one of: exact, partial, or unknown.
 7. Technologies with a usable version are checked against OSV and NVD.
 8. Results are merged, deduplicated, sorted by severity, and printed.
@@ -94,6 +94,8 @@ The path, query string, and fragment of a URL are ignored; only the origin is as
   ---------------------------
 
   Target       example.com
+  URL          https://example.com/
+  HTTP         200
   Status       Completed
   Duration     144 ms
   Page title   Example Domain
@@ -220,7 +222,7 @@ Typical timings observed during development:
 |---|---|
 | `example.com`, no versioned technology and no NVD query | about 150 ms |
 | Cached scan with vulnerability lookups | under 1 second |
-| Cold Nginx assessment with three NVD product queries | about 42 seconds |
+| Cold Nginx assessment with two NVD product queries | roughly 20-30 seconds |
 
 NVD latency dominates cold scans. The delay is deliberate: NVD rejects bursts of anonymous requests. With an API key, the delay drops from 6.5 seconds to 700 ms.
 
@@ -234,8 +236,9 @@ Run the full suite:
 npm test
 ```
 
-The suite contains 42 tests and covers:
+The suite contains 48 tests and covers:
 
+- Strict CLI argument parsing, usage output, and invalid input handling.
 - Host normalization, scheme handling, ports, paths, and invalid input.
 - Version parsing, comparison, and range overlap.
 - Fingerprint detection across headers, cookies, HTML, metadata, and resources.
@@ -243,11 +246,11 @@ The suite contains 42 tests and covers:
 - Unknown, partial, inferred, and conflicting version handling.
 - Same-host redirect following and cross-host redirect blocking.
 - Body size limits, timeouts, and legacy charset decoding.
-- `robots.txt` longest-match precedence, wildcard groups, and refusal behavior.
+- `robots.txt` longest-match precedence, allow-on-tie, wildcard groups, and refusal behavior.
 - Full scans against local HTTP and HTTPS fixtures with mock OSV and NVD APIs.
 - Rate-limited and unreachable targets.
-- Malformed and unavailable vulnerability APIs.
-- NVD platform filtering, unconstrained records, and product aliases.
+- Malformed and unavailable vulnerability APIs, NVD rate-limit retry handling, and response caching.
+- NVD platform filtering, unconstrained records, CPE product aliases, and alias propagation through fingerprinting.
 - Reporter sanitization and empty optional sections.
 
 The HTTPS test creates a temporary self-signed certificate with `openssl` and runs the client with certificate verification disabled for that test only.

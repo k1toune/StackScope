@@ -1,0 +1,28 @@
+{
+  "name": "stackscope",
+  "version": "1.0.0",
+  "description": "Passive website technology fingerprinting and CVE exposure assessment CLI",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "stackscope": "./index.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test tests/"
+  },
+  "keywords": [
+    "security",
+    "fingerprinting",
+    "cve",
+    "vulnerability-assessment",
+    "osint"
+  ],
+  "author": "k1toune",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}
